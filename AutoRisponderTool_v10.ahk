@@ -59,12 +59,19 @@ ExitApp
 
 ButtonAnteprima:
 Gui, Submit  ; Save each control's contents to its associated variable.
+;pwb := WBGet()
 url = https://www.kijiji.it/%categoria%%Keywords%
 ;MsgBox,0,Anteprima,"url:" %url%
 pwb := ComObjCreate("InternetExplorer.Application") ;create IE Object
 pwb.visible:=true  ; Set the IE object to visible
 pwb.Navigate(url) ;Navigate to URL
 WinMaximize, % "ahk_id " pwb.HWND
+while pwb.busy or pwb.ReadyState != 4 ;Wait for page to load
+	Sleep, 100
+Sleep, 2000
+MsgBox, ok per tornare
+Gui Show, w500 h500, Auto Risponder Kijiji v1.0
+
 return
 
 
@@ -77,7 +84,7 @@ url = https://www.kijiji.it/%categoria%%Keywords%
 dbFileName = %A_WorkingDir%\%UrlFileName%
 
 if debug = 1
-MsgBox,0,Parameti,"debug: " %debug%  "notcheckurl: " %notcheckurl% "headless: " %headless% "SendCV: " %SendCV% "Filename: " %Filename% "email: " %email% "message: " %message%
+	MsgBox,0,Parameti,"debug: " %debug%  "notcheckurl: " %notcheckurl% "headless: " %headless% "SendCV: " %SendCV% "Filename: " %Filename% "email: " %email% "message: " %message%
 pwb := ComObjCreate("InternetExplorer.Application") ;create IE Object
 
 if (headless=0)
@@ -91,20 +98,6 @@ while pwb.busy or pwb.ReadyState != 4 ;Wait for page to load
 
 Array := [keywords, 0, name, email, message]
 
-/*
-	; SELECT CATEGORY AND CITY
-;pwb.document.GetElementsByName("q").item[0].Value := Array[1] " " Array[2]  ;Object Name- Set array value
-	pwb.document.GetElementsByName("q").item[0].Value := Array[1] ;Object Name- Set array value
-	
-;click on SEARCH
-	MouseClick  := pwb.document.createEvent("MouseEvent")  ;Mouse Click
-	MouseClick.initMouseEvent("click",true,false,,,,,,,,,,,,,0) ;Initialize Event
-	pwb.document.getElementsByClassName("ki-icon-search button-search-small search-submit").item[0].dispatchEvent(MouseClick) ;Replace "**YOUR_Element_HERE**" with pointer to your Element
-	
-	while pwb.busy or pwb.ReadyState != 4 ;Wait for page to load
-		Sleep, 100
-	
-*/
 
 ifnotexist,%dbFileName%
 {
@@ -116,17 +109,10 @@ ifnotexist,%dbFileName%
 ;LOOP CLICK ON ELEMENTS
 loop, %numloop%
 {
-;While(ele:=pwb.document.getElementsByClassName("cta").item[a_index-1]){
 	
-	;MsgBox, numloop, %A_Index%
 	Sleep, 1000
 	
-	;Check Element
-	;if (pwb.document.getElementsByClassName("cta").item[A_Index].length > 0)
-	;{
 	myurl:=pwb.document.getElementsByClassName("cta").item[A_Index].getAttribute("href") ;gets the value of an attribute
-	;myurl:=ele.getAttribute("href") ;gets the value of an attribute
-	;myurl:=pwb.LocationURL ;grab current url
 	
 	if debug = 1
 		MsgBox, %A_Index% "url: " %myurl%
@@ -137,7 +123,6 @@ loop, %numloop%
 	{
 		if debug = 1			
 			MsgBox Url already exist in database
-		;the url exist so jump next url
 	}
 	else
 	{
@@ -158,7 +143,6 @@ loop, %numloop%
 		MouseClick.initMouseEvent("click",true,false,,,,,,,,,,,,,0) ;Initialize Event
 		
 		pwb.document.getElementsByClassName("cta").item[A_Index].dispatchEvent(MouseClick) ;Replace "**YOUR_Element_HERE**" with pointer to your Element
-		;eGet("a class=cta" #=A_Index).click()
 		
 		
 		while pwb.busy or pwb.ReadyState != 4 ;Wait for page to load
@@ -166,33 +150,29 @@ loop, %numloop%
 		
 		Sleep, 1000
 		
-		;if (pwb.Document.getElementsByName("name").item[0].length > 0)
-		;{
-		if debug = 1			
-			msgbox, form found 
 		
 ;insert data
 		pwb.document.GetElementsByName("name").item[0].scrollIntoView(1) ;Scroll to element on page
-		pwb.document.GetElementsByName("name").item[0].Value := Array[3] ;Object Name- Set array value
-		pwb.document.GetElementsByName("email").item[0].Value := Array[4] ;Object Name- Set array value
 		Sleep, 1000
+		pwb.document.GetElementsByName("name").item[0].Value := Array[3] ;Object Name- Set array value
+		Sleep, 1000
+		pwb.document.GetElementsByName("email").item[0].Value := Array[4] ;Object Name- Set array value
+		Sleep, 1500
 		pwb.document.GetElementsByName("message").item[0].Value := Array[5] ;Object Name- Set array value
-		
 		Sleep, 1000
 		
 ; mouve down to element
 		MouseDown:= pwb.document.createEvent("MouseEvent") ;Create Mouse Down Event
 		MouseDown.initMouseEvent("mousedown",true,false,,,,,,,,,,,,0) ;Initialize the Event
 		
-		pwb.document.getElementsByClassName("input input--block input--upload").item[0].scrollIntoView(1) ;Scroll to element on page
 		
 		eGet("input type=checkbox").checked :=1
 		eGet("input type=checkbox", , "input type=checkbox").checked :=1
 		
-		
 		;click to attache file
 		if (SendCV =1)
 		{
+			pwb.document.getElementsByClassName("input input--block input--upload").item[0].scrollIntoView(1) ;Scroll to element on page
 			sleep 100
 			MouseMove, 964, 99, 2
 			sleep 100
@@ -202,8 +182,6 @@ loop, %numloop%
 				;this doens't work
 			;eGet("input name=cv").click()
 			
-			
-			;Selezionare il file da caricare
 			;upload file
 			WinActivate,   ahk_class #32770
 			Sleep, 500
@@ -215,27 +193,42 @@ loop, %numloop%
 		} ;END SEND CV
 		
 		sleep,1000
-			;SEND CANDIDATURE
-			;eGet("button--main button--block","Invia").click()
+		
+		;SEND CANDIDATURE
+		/*
+			MouseClick  := pwb.document.createEvent("MouseEvent")  ;Mouse Click
+			MouseClick.initMouseEvent("click",true,false,,,,,,,,,,,,,0) ;Initialize Event		
+			pwb.document.getElementsByClassName("button button--main button--block").item[0].dispatchEvent(MouseClick) ;Replace "**YOUR_Element_HERE**" with pointer to your Element
+		*/	
 		
 		eGet("input type=submit").click()
-		Sleep, 3000
-		while pwb.busy or pwb.ReadyState != 4 ;Wait for page to load
-			Sleep, 100
+		Sleep, 5000
 		
-		;} ;END DATA ENTRY AND SUBMIT
-		if debug = 1						
-		MsgBox, Return to %url% after OK
-		;Return on result page
-		pwb.Navigate(url) ;Navigate to URL
 		
-		;pwb.document.parentWindow.history.go(-2) ;Go Backward one page
+		WinActivate ahk_class IEFrame
+		ControlFocus, Internet Explorer_Server1, ahk_class IEFrame
+		pwb := PWB_Init(WinTitle) ; replaces WinGetTitle and PWB_Get()
+		/*
+			; SELECT CATEGORY AND CITY
+			pwb.document.GetElementsByName("q").item[0].Value := Array[1] ;Object Name- Set array value
+			
+		;click on SEARCH
+			MouseClick  := pwb.document.createEvent("MouseEvent")  ;Mouse Click
+			MouseClick.initMouseEvent("click",true,false,,,,,,,,,,,,,0) ;Initialize Event
+			pwb.document.getElementsByClassName("ki-icon-search button-search-small search-submit").item[0].dispatchEvent(MouseClick) ;Replace "**YOUR_Element_HERE**" with pointer to your Element
+			
+			while pwb.busy or pwb.ReadyState != 4 ;Wait for page to load
+				Sleep, 100
+		*/
+		
+		pwb.document.parentWindow.history.go(-2) ;Go Backward one page
+		Sleep, 1000
+		
 		
 		
 	} ; END CANDIDATURE
 	
-	while pwb.busy or pwb.ReadyState != 4 ;Wait for page to load
-		Sleep, 100
+	Sleep, 100
 	;} ;END CHECK ELEMENT PRESENCE
 }	;END LOOP
 
@@ -400,4 +393,24 @@ PWB_Clear(Set=True)
 	PWB_Clear:
 	Element := PWB := ""
 	Return
+}
+
+
+
+
+;********************************POINTER IE************************
+;************Pointer to Open IE Window******************
+WBGet(WinTitle="ahk_class IEFrame", Svr#=1) {               ;// based on ComObjQuery docs
+	static msg := DllCall("RegisterWindowMessage", "str", "WM_HTML_GETOBJECT")
+        , IID := "{0002DF05-0000-0000-C000-000000000046}"   ;// IID_IWebBrowserApp
+;//     , IID := "{332C4427-26CB-11D0-B483-00C04FD90119}"   ;// IID_IHTMLWindow2
+	SendMessage msg, 0, 0, Internet Explorer_Server%Svr#%, %WinTitle%
+	
+	if (ErrorLevel != "FAIL") {
+		lResult:=ErrorLevel, VarSetCapacity(GUID,16,0)
+		if DllCall("ole32\CLSIDFromString", "wstr","{332C4425-26CB-11D0-B483-00C04FD90119}", "ptr",&GUID) >= 0 {
+			DllCall("oleacc\ObjectFromLresult", "ptr",lResult, "ptr",&GUID, "ptr",0, "ptr*",pdoc)
+			return ComObj(9,ComObjQuery(pdoc,IID,IID),1), ObjRelease(pdoc)
+		}
+	}
 }
