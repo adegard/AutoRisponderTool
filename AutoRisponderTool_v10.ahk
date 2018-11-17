@@ -202,12 +202,12 @@ loop, %numloop%
 		*/	
 		
 		eGet("input type=submit").click()
-		Sleep, 5000
-		
+		Sleep, 3000
 		
 		WinActivate ahk_class IEFrame
 		ControlFocus, Internet Explorer_Server1, ahk_class IEFrame
 		pwb := PWB_Init(WinTitle) ; replaces WinGetTitle and PWB_Get()
+		
 		/*
 			; SELECT CATEGORY AND CITY
 			pwb.document.GetElementsByName("q").item[0].Value := Array[1] ;Object Name- Set array value
