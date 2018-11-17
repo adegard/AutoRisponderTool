@@ -206,8 +206,8 @@ loop, %numloop%
 		while pwb.busy or pwb.ReadyState != 4 ;Wait for page to load
 			Sleep, 100
 	;Return on result page
-		pwb.document.parentWindow.history.go(-1) ;Go Backward one page
-		sleep, 1000
+		pwb.Navigate(url) ;Navigate to URL
+		
 		while pwb.busy or pwb.ReadyState != 4 ;Wait for page to load
 			Sleep, 100
 		
