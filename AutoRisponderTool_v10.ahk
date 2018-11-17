@@ -37,6 +37,8 @@ Gui Add, Text, x29 y51 w120 h23, Urls File (stessa cartella)
 Gui Add, Edit, vUrlFileName x159 y51 w287 h21, kijiji_ULRS.txt
 Gui Add, Text, x30 y292 w121 h23, Categoria
 Gui Add, ComboBox, vcategoria x160 y291 w284, offerte-di-lavoro/offerta/|offerte-di-lavoro/cerco-lavoro-servizi/||
+Gui Add, Text, x298 y20 w146 h23, Degug mode (Show msgbox)
+Gui Add, CheckBox, vdebug x449 y20 w22 h23, % " "
 
 Gui Show, w500 h500, Auto Risponder Kijiji v1.0
 Return
@@ -74,8 +76,8 @@ url = https://www.kijiji.it/%categoria%%Keywords%
 ;file path for urls database
 dbFileName = %A_WorkingDir%\%UrlFileName%
 
-
-;MsgBox,0,Parameti, "numloop: " %numloop% "notcheckurl: " %notcheckurl% "headless: " %headless% "SendCV: " %SendCV% "Filename: " %Filename% "email: " %email% "message: " %message%
+if debug = 1
+MsgBox,0,Parameti,"debug: " %debug%  "notcheckurl: " %notcheckurl% "headless: " %headless% "SendCV: " %SendCV% "Filename: " %Filename% "email: " %email% "message: " %message%
 pwb := ComObjCreate("InternetExplorer.Application") ;create IE Object
 
 if (headless=0)
@@ -106,29 +108,35 @@ Array := [keywords, 0, name, email, message]
 
 ifnotexist,%dbFileName%
 {
-		TestString := "This is url list.`r`n"  
-		Fileappend,%TestString%`r`n,%dbFileName%
+	TestString := "This is url list.`r`n"  
+	Fileappend,%TestString%`r`n,%dbFileName%
 }
 
 
 ;LOOP CLICK ON ELEMENTS
 loop, %numloop%
 {
+;While(ele:=pwb.document.getElementsByClassName("cta").item[a_index-1]){
 	
-	;MsgBox, "loop : " %A_Index%
-	
+	;MsgBox, numloop, %A_Index%
 	Sleep, 1000
 	
 	;Check Element
+	;if (pwb.document.getElementsByClassName("cta").item[A_Index].length > 0)
+	;{
 	myurl:=pwb.document.getElementsByClassName("cta").item[A_Index].getAttribute("href") ;gets the value of an attribute
+	;myurl:=ele.getAttribute("href") ;gets the value of an attribute
 	;myurl:=pwb.LocationURL ;grab current url
 	
+	if debug = 1
+		MsgBox, %A_Index% "url: " %myurl%
 	
 	FileRead, OutputVar, %dbFileName%
 	
 	IfInString, OutputVar , %myurl%
 	{
-		;MsgBox The following string contain this url
+		if debug = 1			
+			MsgBox Url already exist in database
 		;the url exist so jump next url
 	}
 	else
@@ -139,9 +147,11 @@ loop, %numloop%
 		}
 		else
 		{
-		;MsgBox This url has been addeed
+			if debug = 1			
+				MsgBox This url has been addeed
 			FileAppend, %myurl%`n, %dbFileName%
 		}
+		
 		
 		;Go to the url
 		MouseClick  := pwb.document.createEvent("MouseEvent")  ;Mouse Click
@@ -155,6 +165,11 @@ loop, %numloop%
 			Sleep, 100
 		
 		Sleep, 1000
+		
+		;if (pwb.Document.getElementsByName("name").item[0].length > 0)
+		;{
+		if debug = 1			
+			msgbox, form found 
 		
 ;insert data
 		pwb.document.GetElementsByName("name").item[0].scrollIntoView(1) ;Scroll to element on page
@@ -197,26 +212,32 @@ loop, %numloop%
 			ControlFocus, Edit1,  ahk_class #32770
 			ControlSetText, Edit1, %cvfilename%,  ahk_class #32770
 			ControlSend, Button1, {Enter}, ahk_class #32770
-		}
+		} ;END SEND CV
 		
 		sleep,1000
-;SEND CANDIDATURE
-;eGet("button--main button--block","Invia").click()
+			;SEND CANDIDATURE
+			;eGet("button--main button--block","Invia").click()
+		
 		eGet("input type=submit").click()
+		Sleep, 3000
 		while pwb.busy or pwb.ReadyState != 4 ;Wait for page to load
 			Sleep, 100
-	;Return on result page
+		
+		;} ;END DATA ENTRY AND SUBMIT
+		if debug = 1						
+		MsgBox, Return to %url% after OK
+		;Return on result page
 		pwb.Navigate(url) ;Navigate to URL
 		
-		while pwb.busy or pwb.ReadyState != 4 ;Wait for page to load
-			Sleep, 100
+		;pwb.document.parentWindow.history.go(-2) ;Go Backward one page
 		
 		
-	}
+	} ; END CANDIDATURE
 	
-	
-}
-
+	while pwb.busy or pwb.ReadyState != 4 ;Wait for page to load
+		Sleep, 100
+	;} ;END CHECK ELEMENT PRESENCE
+}	;END LOOP
 
 Sleep, 1000
 
