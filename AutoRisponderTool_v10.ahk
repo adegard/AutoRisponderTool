@@ -1,4 +1,4 @@
-﻿#NoEnv  ; Recommended for performance and compatibility with future AutoHotkey releases.
+#NoEnv  ; Recommended for performance and compatibility with future AutoHotkey releases.
 ; #Warn  ; Enable warnings to assist with detecting common errors.
 SendMode Input  ; Recommended for new scripts due to its superior speed and reliability.
 SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
@@ -18,9 +18,9 @@ Gui Add, CheckBox, vSendCV x160 y140 w320 h23, Non funziona in modo Nascosto
 Gui Add, Text, x30 y170 w121 h23, Percoso File CV
 Gui Add, Edit, vcvfilename x160 y170 w287 h21, C:\Users\degar_000\Desktop\marketing.txt
 Gui Add, Text, x30 y200 w121 h23, Email
-Gui Add, Edit, vemail x160 y200 w287 h21, puqrb@pachilly.com
+Gui Add, Edit, vemail x160 y200 w287 h21, gubegumu@rsvhr.com
 Gui Add, Text, x30 y230 w121 h33, Testo candidatura (messaggio)
-Gui Add, Edit, vmessage x160 y230 w287 h34 +Multi, Buongiorno vorrei presentarvi alcuni strumenti di Growth Hacking che le possono essere utili... http://bit.ly/2qMXBg2. `n`nNon rispondere a questa email che è stata generata automaticamente con un email temporanea. Per saperne di più : www.pc.dream.it/ressources.html
+Gui Add, Edit, vmessage x160 y230 w287 h34 +Multi, Buongiorno vorrei presentarvi alcuni strumenti di Growth Hacking che le possono essere utili... http://bit.ly/2qQV0ld`n`nNon rispondere a questa email che è stata generata automaticamente con un email temporanea. Per saperne di più : www.pc.dream.it/ressources.html
 Gui Add, GroupBox, x20 y270 w470 h146, Filtri Annunci Kijiji
 Gui Add, Text, x30 y320 w121 h23, Parole Chiavi
 Gui Add, Edit, vkeywords x160 y320 w187 h21, Web marketing
@@ -40,8 +40,6 @@ Gui Add, ComboBox, vcategoria x160 y291 w284, offerte-di-lavoro/offerta/|offerte
 
 Gui Show, w500 h500, Auto Risponder Kijiji v1.0
 Return
-
-
 
 ;**********
 
@@ -77,7 +75,7 @@ url = https://www.kijiji.it/%categoria%%Keywords%
 dbFileName = %A_WorkingDir%\%UrlFileName%
 
 
-MsgBox,0,Parameti, "UrlsFileName: " %UrlsFileName% "notcheckurl: " %notcheckurl% "headless: " %headless% "SendCV: " %SendCV% "Filename: " %Filename% "email: " %email% "message: " %message%
+;MsgBox,0,Parameti, "numloop: " %numloop% "notcheckurl: " %notcheckurl% "headless: " %headless% "SendCV: " %SendCV% "Filename: " %Filename% "email: " %email% "message: " %message%
 pwb := ComObjCreate("InternetExplorer.Application") ;create IE Object
 
 if (headless=0)
@@ -94,38 +92,37 @@ Array := [keywords, 0, name, email, message]
 /*
 	; SELECT CATEGORY AND CITY
 ;pwb.document.GetElementsByName("q").item[0].Value := Array[1] " " Array[2]  ;Object Name- Set array value
-pwb.document.GetElementsByName("q").item[0].Value := Array[1] ;Object Name- Set array value
-
+	pwb.document.GetElementsByName("q").item[0].Value := Array[1] ;Object Name- Set array value
+	
 ;click on SEARCH
-MouseClick  := pwb.document.createEvent("MouseEvent")  ;Mouse Click
-MouseClick.initMouseEvent("click",true,false,,,,,,,,,,,,,0) ;Initialize Event
-pwb.document.getElementsByClassName("ki-icon-search button-search-small search-submit").item[0].dispatchEvent(MouseClick) ;Replace "**YOUR_Element_HERE**" with pointer to your Element
-
-while pwb.busy or pwb.ReadyState != 4 ;Wait for page to load
-	Sleep, 100
-
+	MouseClick  := pwb.document.createEvent("MouseEvent")  ;Mouse Click
+	MouseClick.initMouseEvent("click",true,false,,,,,,,,,,,,,0) ;Initialize Event
+	pwb.document.getElementsByClassName("ki-icon-search button-search-small search-submit").item[0].dispatchEvent(MouseClick) ;Replace "**YOUR_Element_HERE**" with pointer to your Element
+	
+	while pwb.busy or pwb.ReadyState != 4 ;Wait for page to load
+		Sleep, 100
+	
 */
+
+ifnotexist,%dbFileName%
+{
+		TestString := "This is url list.`r`n"  
+		Fileappend,%TestString%`r`n,%dbFileName%
+}
 
 
 ;LOOP CLICK ON ELEMENTS
 loop, %numloop%
 {
 	
+	;MsgBox, "loop : " %A_Index%
 	
-;Click on  Element
+	Sleep, 1000
 	
-	
-	
+	;Check Element
 	myurl:=pwb.document.getElementsByClassName("cta").item[A_Index].getAttribute("href") ;gets the value of an attribute
 	;myurl:=pwb.LocationURL ;grab current url
 	
-	
-	
-	ifnotexist,%dbFileName%
-	{
-		TestString := "This is url list.`r`n"  
-		Fileappend,%TestString%`r`n,%dbFileName%
-	}
 	
 	FileRead, OutputVar, %dbFileName%
 	
@@ -151,11 +148,13 @@ loop, %numloop%
 		MouseClick.initMouseEvent("click",true,false,,,,,,,,,,,,,0) ;Initialize Event
 		
 		pwb.document.getElementsByClassName("cta").item[A_Index].dispatchEvent(MouseClick) ;Replace "**YOUR_Element_HERE**" with pointer to your Element
+		;eGet("a class=cta" #=A_Index).click()
+		
 		
 		while pwb.busy or pwb.ReadyState != 4 ;Wait for page to load
 			Sleep, 100
 		
-		Sleep, 2000
+		Sleep, 1000
 		
 ;insert data
 		pwb.document.GetElementsByName("name").item[0].scrollIntoView(1) ;Scroll to element on page
@@ -176,7 +175,7 @@ loop, %numloop%
 		eGet("input type=checkbox", , "input type=checkbox").checked :=1
 		
 		
-;click to attache file
+		;click to attache file
 		if (SendCV =1)
 		{
 			sleep 100
@@ -185,12 +184,12 @@ loop, %numloop%
 			MouseClick, Left, 964, 99
 			sleep 100
 			
-	;this doens't work
-;eGet("input name=cv").click()
+				;this doens't work
+			;eGet("input name=cv").click()
 			
 			
-;Selezionare il file da caricare
-;upload file
+			;Selezionare il file da caricare
+			;upload file
 			WinActivate,   ahk_class #32770
 			Sleep, 500
 			WinWait,  ahk_class #32770, , 500
@@ -204,22 +203,26 @@ loop, %numloop%
 ;SEND CANDIDATURE
 ;eGet("button--main button--block","Invia").click()
 		eGet("input type=submit").click()
+		while pwb.busy or pwb.ReadyState != 4 ;Wait for page to load
+			Sleep, 100
+	;Return on result page
+		pwb.document.parentWindow.history.go(-1) ;Go Backward one page
+		sleep, 1000
+		while pwb.busy or pwb.ReadyState != 4 ;Wait for page to load
+			Sleep, 100
+		
 		
 	}
 	
 	
-	;Return on result page
-	pwb.document.parentWindow.history.go(-1) ;Go Backward one page
-	while pwb.busy or pwb.ReadyState != 4 ;Wait for page to load
-		Sleep, 100
 }
 
 
-Sleep, 3000
+Sleep, 1000
 
 pwb.Quit()
 
-*/
+
 
 ExitApp
 
@@ -244,8 +247,8 @@ eGet(Tag, Text="", AfterTag="", AfterText="") ; https://autohotkey.com/boards/vi
 		If (A_Index = 2)
 			If (AfterTag = "") and (AfterText = "")
 				Break
-			Else
-				After := "After"
+		Else
+			After := "After"
 		If RegExMatch(%After%Tag, "i)^[a-z0-9:]+(?=\s|$)", %After%TagName) and (%After%TagName <> "All")
 			%After%Tag := SubStr(%After%Tag, StrLen(%After%TagName) + 1)
 		Else
@@ -254,12 +257,12 @@ eGet(Tag, Text="", AfterTag="", AfterText="") ; https://autohotkey.com/boards/vi
 		While (@5 := RegExMatch(%After%Tag, "i)\s(?:!([a-z:]+)|(\+|-)?([\w#:]+)=?(" Literal "(?:[^" Literal "]|" Literal Literal ")*" Literal "(?=\s|$)|\S*))", @, @5 + StrLen(@)))
 			If (@1 <> "")
 				%After%Tag := SubStr(%After%Tag, 1, @5 + StrLen(@)) UserConfig_%@1% SubStr(%After%Tag, @5 + StrLen(@))
-			Else If (@4 <> "") {
-				If (InStr(@4, Literal) = 1) and (@4 <> Literal) and (SubStr(@4, 0, 1) = Literal) and (@4 := SubStr(@4, 2, -1))
-					StringReplace, @4, @4, %Literal%%Literal%, %Literal%, All
-				%After%%@3% := @4, %After%AttributesList .= @3 Delimiter
-			} Else
-				%After%%@3% := @2 = "+" ? True : @2 = "-" ? False : True
+		Else If (@4 <> "") {
+			If (InStr(@4, Literal) = 1) and (@4 <> Literal) and (SubStr(@4, 0, 1) = Literal) and (@4 := SubStr(@4, 2, -1))
+				StringReplace, @4, @4, %Literal%%Literal%, %Literal%, All
+			%After%%@3% := @4, %After%AttributesList .= @3 Delimiter
+		} Else
+			%After%%@3% := @2 = "+" ? True : @2 = "-" ? False : True
 		Loop, Parse, SpecialAttributes, `,
 			StringReplace, %After%AttributesList, %After%AttributesList, %A_LoopField%%Delimiter%, , All
 	}
@@ -299,15 +302,15 @@ eGet(Tag, Text="", AfterTag="", AfterText="") ; https://autohotkey.com/boards/vi
 					If (%After%Text <> "") and !RegExMatch((%After%TagName <> "input") ? @.innerText : !InStr(EditableInputClasses, "," @.Type ",") and (@.Value <> "") ? @.Value : (@.ID <> "") ? @.ID : @.Name, TagRegExStart %After%Text TagRegExEnd)
 						Break
 				} Else If (A_LoopField = "") and ((++%After%n = %After%#) or ((After = "") and (All or ((# = "Last") and !(Last := @))))) {
-					If After {
-						After =
-						Break
-					}
-					If !All
-						Return Element := @, PWB_Clear()
-					Element.Insert(@)
-				} Else If !RegExMatch(@[A_LoopField], TagRegExStart %After%%A_LoopField% TagRegExEnd)
+				If After {
+					After =
 					Break
+				}
+				If !All
+					Return Element := @, PWB_Clear()
+				Element.Insert(@)
+			} Else If !RegExMatch(@[A_LoopField], TagRegExStart %After%%A_LoopField% TagRegExEnd)
+				Break
 		}
 	}
 	Return All ? Element : Element := Last ? Last : False, PWB_Clear()
