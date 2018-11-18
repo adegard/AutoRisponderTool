@@ -1,6 +1,6 @@
 # AutoRisponderTool
 
-<h1>Growth Hacking Auto Risponder Tools in ahk:  AutoRisponderTool_vxx </h1>
+<h1>Auto Risponder Tools in ahk:  AutoRisponderTool_vxx </h1>
 Automate contact form compilation for job/services ads in different categories :
 Schedule Jobs to automate when you deside, ie during the night (NEXT version TBD)
 
